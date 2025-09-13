@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Our Memories — White & Blue</title>
+<meta name="description" content="White & blue romantic gallery with floating red hearts on the cover; auto-loads content from GitHub; group cards pop up full grids; compact music bar; red letter popup."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7fbff;
+  --ink:#0c385f;
+  --muted:#5d7a98;
+  --card:#ffffff;
+  --line:#dbeafe;
+  --accent:#2f80ff;
+  --accent-2:#9dd3ff;
+  --heart:#ff3b6b;
+  --heart-2:#ff7aa0;
+  --shadow:0 10px 30px rgba(12,56,95,.08);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:"Poppins",system-ui,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink);
+  background:radial-gradient(1000px 600px at 80% -10%, #eaf4ff 0%, var(--bg) 60%, #fff 100%);
+  min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden;
+}
+.wrap{width:min(1200px,94vw); margin:0 auto;}
+
+/* Cover */
+.cover{position:relative; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#eaf4ff,transparent);}
+.cover .inner{padding:18px 12px 10px; position:relative;}
+.coverPic{width:100%; height:230px; border-radius:18px; object-fit:cover; display:block; background:linear-gradient(120deg,#eaf2ff,#ffffff); border:1px solid var(--line); box-shadow:var(--shadow);}
+.brand{position:absolute; left:24px; bottom:26px; background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:14px; padding:10px 14px; box-shadow:0 6px 20px rgba(12,56,95,.12);}
+.brand h1{margin:0; font-size:clamp(20px,3vw,28px);}
+.brand .love{color:var(--heart); font-weight:900; animation: beat 1.1s ease-in-out infinite; margin:0 6px;}
+@keyframes beat{0%,100%{transform:scale(1)} 50%{transform:scale(1.15)}}
+
+/* Floating hearts over the cover only */
+.coverHearts{position:absolute; inset:0; pointer-events:none; overflow:hidden; border-radius:18px;}
+.heart{position:absolute; bottom:-30px; color:var(--heart); opacity:.85; text-shadow:0 4px 10px rgba(255,59,107,.35);
+  animation: floatUp 12s linear infinite;}
+@keyframes floatUp{0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-120%) scale(1.15)}}
+
+/* Settings (GitHub) */
+details.settings{margin:12px auto; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:14px; width:min(1200px,94vw);}
+details.settings summary{cursor:pointer; font-weight:700;}
+.settings-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px; margin-top:8px;}
+input[type="text"]{width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:#fff;}
+.btn{background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer;}
+.note{color:var(--muted);}
+
+/* Group overview */
+.groups{padding:18px 0 8px;}
+.grid-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);}
+.group-card{padding:10px;}
+.group-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:6px 2px 10px;}
+.group-title{font-weight:800;}
+.badge-count{font-size:.85rem; color:var(--muted);}
+.mini-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:6px; border-radius:12px; overflow:hidden;}
+.mini-grid img{width:100%; height:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:#f3f7ff;}
+.group-card button.open{width:100%; margin-top:10px; background:var(--accent);}
+
+/* Group modal (full grid) */
+.modal{position:fixed; inset:0; display:none; background:rgba(4,12,20,.7); z-index:40; align-items:center; justify-content:center; padding:20px;}
+.modal.open{display:flex;}
+.modal .panel{background:#fff; border-radius:16px; width:min(1100px,94vw); max-height:92vh; overflow:auto; padding:14px; position:relative; border:1px solid var(--line);}
+.modal .panel h3{margin:0 0 10px 0;}
+.modal .panel .closeX{position:absolute; right:14px; top:12px; border:none; background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 10px; cursor:pointer;}
+.full-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px;}
+.full-grid img{width:100%; height:100%; object-fit:cover; aspect-ratio:1/1; display:block; border-radius:10px; background:#f3f7ff;}
+
+/* Lightbox */
+.lightbox{position:fixed; inset:0; display:none; background:rgba(6,12,20,.92); z-index:60; align-items:center; justify-content:center;}
+.lightbox.open{display:flex;}
+.lbWrap{max-width:94vw; max-height:92vh;}
+.lbImg{max-width:94vw; max-height:92vh; border-radius:12px; box-shadow:0 10px 40px rgba(3,18,31,.6);}
+.navBtn{position:fixed; top:50%; transform:translateY(-50%); background:#fff; border:1px solid var(--line); border-radius:12px; padding:8px 12px; cursor:pointer; font-weight:800;}
+.navPrev{left:18px} .navNext{right:18px} .navClose{top:16px; right:16px; transform:none;}
+
+/* Compact music bar */
+.musicBar{position:fixed; left:50%; bottom:12px; transform:translateX(-50%); z-index:35;
+  background:linear-gradient(180deg,#101928,#0a111c); color:#e9f1ff; border:1px solid #1f2e46; border-radius:999px;
+  padding:8px 12px; display:flex; align-items:center; gap:10px; box-shadow:0 12px 24px rgba(10,17,28,.45);}
+.musicBar .btnM{background:#1a2a44; color:#e9f1ff; border:1px solid #2c436a; width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+.musicBar .btnPlay{background:#e9f1ff; color:#0a111c; font-weight:900;}
+.musicBar .seek{-webkit-appearance:none; width:160px; height:4px; border-radius:999px; background:#2b4872; outline:none;}
+.musicBar .seek::-webkit-slider-thumb{-webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#4ea2ff; border:2px solid #e7f1ff;}
+.musicBar .vol{width:90px;}
+.time{font-size:.82rem; color:#c7d7f3;}
+
+/* Letter: red ribbon popup */
+.letterBtn{position:fixed; right:16px; bottom:70px; background:linear-gradient(145deg,var(--heart),var(--heart-2)); color:#fff; border:none;
+  border-radius:999px; padding:12px 18px; font-weight:800; box-shadow:0 12px 30px rgba(255,59,107,.45), 0 0 0 4px rgba(255,59,107,.18);
+  cursor:pointer; z-index:45; text-shadow:0 1px 0 rgba(0,0,0,.2);}
+.letterBtn::after{content:"🎀"; margin-left:8px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));}
+.letterModal{position:fixed; inset:0; display:none; background:rgba(0,0,0,.75); z-index:70; align-items:center; justify-content:center; padding:20px;}
+.letterModal.open{display:flex;}
+.letterModal .inner{position:relative; background:#fff; border-radius:16px; max-width:92vw; max-height:92vh; overflow:auto; padding:12px; box-shadow:0 16px 60px rgba(14,27,44,.45);}
+.letterModal .inner::before, .letterModal .inner::after{content:""; position:absolute; left:50%; transform:translateX(-50%); background:linear-gradient(180deg,var(--heart-2),var(--heart));
+  filter:drop-shadow(0 6px 14px rgba(255,59,107,.45));}
+.letterModal .inner::before{top:-10px; width:18px; height:calc(100% + 20px); border-radius:8px; opacity:.9;}
+.letterModal .inner::after{top:-10px; width:90px; height:52px; border-radius:18px 18px 6px 6px; clip-path:polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%);}
+.letterModal .bow{position:absolute; top:-2px; left:50%; transform:translateX(-50%); font-size:26px; text-shadow:0 3px 10px rgba(255,59,107,.55);}
+.letterToolbar{display:flex; gap:10px; justify-content:flex-end; margin-bottom:8px;}
+.letterToolbar .btn{background:var(--heart);}
+
+footer{text-align:center; padding:30px 0 80px; color:var(--muted);}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="wrap inner">
+    <img id="coverPic" class="coverPic" alt="Cover"/>
+    <div class="coverHearts" id="coverHearts" aria-hidden="true"></div>
+    <div class="brand">
+      <h1><strong>Kishore</strong><span class="love">❤</span><strong>infanta</strong></h1>
+    </div>
+  </div>
+</div>
+
+<main class="wrap groups">
+  <details class="settings">
+    <summary>Settings — GitHub Source</summary>
+    <div class="settings-grid">
+      <label>GitHub Username<br><input id="ghUser" placeholder="your-username" type="text"></label>
+      <label>Repository Name<br><input id="ghRepo" placeholder="your-repo" type="text"></label>
+      <label>Branch<br><input id="ghBranch" value="main" type="text"></label>
+      <label>Base Path (optional)<br><input id="ghBase" placeholder="" type="text"></label>
+    </div>
+    <div class="note">Tip: For Pages like <code>username.github.io/repo/</code>, click Auto-detect. Repo should be <b>public</b>.</div>
+    <div style="margin-top:8px; display:flex; gap:8px;">
+      <button class="btn" id="saveGh">Save</button>
+      <button class="btn" id="autoDetect">Auto-detect</button>
+      <button class="btn" id="testGh">Test</button>
+    </div>
+  </details>
+
+  <section class="grid-cards" id="groupCards"></section>
+</main>
+
+<!-- Group modal (full grid) -->
+<div class="modal" id="groupModal" aria-hidden="true">
+  <div class="panel">
+    <button class="closeX" id="gmClose">Close ✕</button>
+    <h3 id="gmTitle">Group</h3>
+    <div class="full-grid" id="gmGrid"></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lbWrap">
+    <img id="lbImg" class="lbImg" alt="Large view"/>
+  </div>
+  <button class="navBtn navPrev" id="navPrev">◀</button>
+  <button class="navBtn navNext" id="navNext">▶</button>
+  <button class="navBtn navClose" id="navClose">✕</button>
+</div>
+
+<!-- Compact music bar (no Spotify UI) -->
+<div class="musicBar" id="musicBar">
+  <button class="btnM" id="mShuffle" title="Shuffle">🔀</button>
+  <button class="btnM" id="mPrev" title="Prev">⏮</button>
+  <button class="btnM btnPlay" id="mPlay" title="Play/Pause">▶</button>
+  <button class="btnM" id="mNext" title="Next">⏭</button>
+  <button class="btnM" id="mRepeat" title="Repeat">🔁</button>
+  <span class="time" id="mCur">0:00</span>
+  <input type="range" id="mSeek" class="seek" min="0" max="100" value="0"/>
+  <span class="time" id="mDur">0:00</span>
+  <input type="range" id="mVol" class="seek vol" min="0" max="1" step="0.01" value="1"/>
+</div>
+
+<!-- Letter: red ribbon popup -->
+<button class="letterBtn" id="openLetter">✉️ Letter</button>
+<div class="letterModal" id="letterModal" aria-hidden="true">
+  <div class="inner">
+    <div class="bow">🎀</div>
+    <div class="letterToolbar">
+      <button class="btn" id="ltPrev">◀</button>
+      <button class="btn" id="ltNext">▶</button>
+      <button class="btn" id="ltClose">Close</button>
+    </div>
+    <img id="letterImg" alt="Letter"/>
+  </div>
+</div>
+
+<footer>© 2025 — White & Blue, with all my love</footer>
+
+<script>
+// ===== Floating hearts on cover =====
+(function coverHearts() {
+  const box = document.getElementById('coverHearts');
+  function spawn() {
+    const s = document.createElement('div');
+    s.className = 'heart';
+    s.textContent = '❤';
+    s.style.left = Math.random()*100 + '%';
+    s.style.fontSize = (18 + Math.random()*16) + 'px';
+    s.style.animationDuration = (7 + Math.random()*7) + 's';
+    box.appendChild(s);
+    setTimeout(()=> s.remove(), 15000);
+  }
+  for (let i=0;i<12;i++) setTimeout(spawn, i*400);
+  setInterval(spawn, 800);
+})();
+
+// ===== GitHub settings =====
+const ghUser = document.getElementById('ghUser');
+const ghRepo = document.getElementById('ghRepo');
+const ghBranch = document.getElementById('ghBranch');
+const ghBase = document.getElementById('ghBase');
+const saveGh = document.getElementById('saveGh');
+const autoDetect = document.getElementById('autoDetect');
+const testGh = document.getElementById('testGh');
+function saveSettings(){
+  const s = { user:ghUser.value.trim(), repo:ghRepo.value.trim(), branch:ghBranch.value.trim()||'main', base:ghBase.value.trim() };
+  localStorage.setItem('ghSettingsWB2', JSON.stringify(s));
+  return s;
+}
+function loadSettings(){
+  const s = JSON.parse(localStorage.getItem('ghSettingsWB2')||'null');
+  if (s) { ghUser.value=s.user||''; ghRepo.value=s.repo||''; ghBranch.value=s.branch||'main'; ghBase.value=s.base||''; }
+  return s;
+}
+function detectFromUrl(){
+  const host = location.hostname;
+  const path = location.pathname;
+  const s = { user:'', repo:'', branch:'main', base:'' };
+  if (host.endsWith('github.io')) {
+    s.user = host.split('.')[0];
+    const segs = path.split('/').filter(Boolean);
+    if (segs.length>=1) s.repo = segs[0];
+    s.base = segs.length>=1 ? segs.slice(0,1).join('/') : '';
+  }
+  ghUser.value=s.user; ghRepo.value=s.repo; ghBranch.value=s.branch; ghBase.value=s.base;
+  saveSettings();
+}
+saveGh.addEventListener('click', saveSettings);
+autoDetect.addEventListener('click', detectFromUrl);
+testGh.addEventListener('click', async()=>{ const s = saveSettings(); try{ const r = await fetch(`https://api.github.com/repos/${s.user}/${s.repo}`); alert(r.ok?'Connected ✓':'Failed: '+r.status); }catch(e){ alert('Network error'); } });
+loadSettings() || detectFromUrl();
+
+function rawUrl(s, path) { return `https://raw.githubusercontent.com/${s.user}/${s.repo}/${s.branch}/${path}`; }
+async function listFolder(path){ 
+  const s = JSON.parse(localStorage.getItem('ghSettingsWB2')||'null') || saveSettings();
+  const api = `https://api.github.com/repos/${s.user}/${s.repo}/contents/${path}?ref=${s.branch}`;
+  const r = await fetch(api); if(!r.ok) throw new Error('List failed: '+path+' ('+r.status+')');
+  const data = await r.json();
+  return data.filter(x=>x.type==='file').map(x=>({name:x.name, path:x.path, url:x.download_url || rawUrl(s,x.path)}));
+}
+
+// ===== Cover photo detection =====
+(async function coverDetect(){
+  try {
+    const s = JSON.parse(localStorage.getItem('ghSettingsWB2')||'null') || saveSettings();
+    const base = s.base? s.base + '/' : '';
+    const files = await listFolder(`${base}cover`);
+    const img = files.find(f => /\.(png|jpg|jpeg|webp)$/i.test(f.name));
+    const cover = document.getElementById('coverPic');
+    cover.src = img ? img.url : 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1600\" height=\"600\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#eaf2ff\"/><stop offset=\"1\" stop-color=\"#ffffff\"/></linearGradient></defs><rect width=\"100%\" height=\"100%\" fill=\"url(#g)\"/></svg>');
+  } catch(e) { /* keep gradient */ }
+})();
+
+// ===== Groups =====
+const GROUPS = [
+  {label:'📸 Portrait', slug:'portrait'},
+  {label:'☕ Coffee Date', slug:'coffee-date'},
+  {label:'🎂 Birthday', slug:'birthday'},
+  {label:'🌙 Night Out', slug:'night-out'},
+  {label:'🎨 Painting Date', slug:'painting-date'},
+  {label:'💖 My Favourite', slug:'my-favourite'},
+  {label:'🛕 Temple Date', slug:'temple-date'},
+];
+const IMG_EXTS = ['png','jpg','jpeg','webp'];
+const SONG_EXTS = ['mp3','ogg','wav','m4a'];
+const LETTER_EXTS = IMG_EXTS;
+
+const groupCards = document.getElementById('groupCards');
+function isImg(name){ return IMG_EXTS.includes(name.split('.').pop().toLowerCase()); }
+
+async function buildCards(){
+  const s = JSON.parse(localStorage.getItem('ghSettingsWB2')||'null') || saveSettings();
+  const base = s.base ? s.base + '/' : '';
+  const cards = [];
+  for (const g of GROUPS){
+    try {
+      const files = await listFolder(`${base}images/${g.slug}`);
+      const images = files.filter(f=>isImg(f.name));
+      const thumbs = images.slice(0,4);
+      const grid = thumbs.map(t=>`<img src="${t.url}" alt="">`).join('') || '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#9aa6b6;">No images yet</div>';
+      cards.push(`
+        <article class="card group-card" data-slug="${g.slug}" data-label="${g.label}">
+          <div class="group-head">
+            <div class="group-title">${g.label}</div>
+            <div class="badge-count">${images.length} photo(s)</div>
+          </div>
+          <div class="mini-grid">${grid}</div>
+          <button class="btn open" data-slug="${g.slug}">Open</button>
+        </article>`);
+    } catch(e) {
+      cards.push(`
+        <article class="card group-card" data-slug="${g.slug}" data-label="${g.label}">
+          <div class="group-head">
+            <div class="group-title">${g.label}</div>
+            <div class="badge-count">0 photo(s)</div>
+          </div>
+          <div class="mini-grid"><div style="grid-column:1/-1; text-align:center; padding:20px; color:#9aa6b6;">Add files to images/${g.slug}/</div></div>
+          <button class="btn open" data-slug="${g.slug}">Open</button>
+        </article>`);
+    }
+  }
+  groupCards.innerHTML = cards.join('');
+  groupCards.querySelectorAll('button.open').forEach(btn=> btn.addEventListener('click', ()=> openGroup(btn.dataset.slug)));
+}
+buildCards();
+
+// ===== Group modal + Lightbox =====
+const groupModal = document.getElementById('groupModal');
+const gmClose = document.getElementById('gmClose');
+const gmTitle = document.getElementById('gmTitle');
+const gmGrid = document.getElementById('gmGrid');
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lbImg');
+const navPrev = document.getElementById('navPrev');
+const navNext = document.getElementById('navNext');
+const navClose = document.getElementById('navClose');
+let items = []; let idx = 0;
+
+function openLightbox(i){
+  idx = i;
+  lb.classList.add('open'); lb.setAttribute('aria-hidden','false');
+  lbImg.src = items[idx]; 
+}
+function move(d){ idx = (idx + d + items.length) % items.length; lbImg.src = items[idx]; }
+function closeLB(){
+  lb.classList.remove('open'); lb.setAttribute('aria-hidden','true'); lbImg.src='';
+}
+navPrev.addEventListener('click', ()=> move(-1));
+navNext.addEventListener('click', ()=> move(1));
+navClose.addEventListener('click', closeLB);
+lb.addEventListener('click', e=>{ if(e.target===lb) closeLB(); });
+window.addEventListener('keydown', e=>{ if(!lb.classList.contains('open')) return; if(e.key==='Escape') closeLB(); if(e.key==='ArrowRight') move(1); if(e.key==='ArrowLeft') move(-1); });
+
+async function openGroup(slug){
+  try {
+    const s = JSON.parse(localStorage.getItem('ghSettingsWB2')||'null') || saveSettings();
+    const base = s.base ? s.base + '/' : '';
+    const files = await listFolder(`${base}images/${slug}`);
+    const images = files.filter(f=>isImg(f.name)).map(f=>f.url);
+    items = images;
+    gmTitle.textContent = GROUPS.find(x=>x.slug===slug).label + ' — ' + images.length + ' photo(s)';
+    gmGrid.innerHTML = images.map((src,i)=> `<img data-i="${i}" src="${src}" alt="photo">`).join('');
+    gmGrid.querySelectorAll('img').forEach(el => el.addEventListener('click', e => openLightbox(parseInt(e.currentTarget.dataset.i,10)) ));
+    groupModal.classList.add('open'); groupModal.setAttribute('aria-hidden','false');
+  } catch(e) {
+    gmTitle.textContent = 'Error loading group';
+    gmGrid.innerHTML = '<div style="padding:20px; color:#a33;">'+e.message+'</div>';
+    groupModal.classList.add('open'); groupModal.setAttribute('aria-hidden','false');
+  }
+}
+gmClose.addEventListener('click', ()=> { groupModal.classList.remove('open'); groupModal.setAttribute('aria-hidden','true'); });
+
+// ===== Letters (red ribbon popup) =====
+const openLetter = document.getElementById('openLetter');
+const letterModal = document.getElementById('letterModal');
+const letterImg = document.getElementById('letterImg');
+const ltPrev = document.getElementById('ltPrev'), ltNext = document.getElementById('ltNext'), ltClose = document.getElementById('ltClose');
+let letters=[]; let lidx=0;
+function isLetter(name){ return LETTER_EXTS.includes(name.split('.').pop().toLowerCase()); }
+function showLetter(i){ if(!letters.length) return; lidx=(i+letters.length)%letters.length; letterImg.src=letters[lidx]; }
+openLetter.addEventListener('click', ()=>{ letterModal.classList.add('open'); letterModal.setAttribute('aria-hidden','false'); });
+ltClose.addEventListener('click', ()=>{ letterModal.classList.remove('open'); letterModal.setAttribute('aria-hidden','true'); });
+ltPrev.addEventListener('click', ()=> showLetter(lidx-1)); ltNext.addEventListener('click', ()=> showLetter(lidx+1));
+letterModal.addEventListener('click', e=>{ if(e.target===letterModal) ltClose.click(); });
+(async function loadLetters(){
+  try {
+    const s = JSON.parse(localStorage.getItem('ghSettingsWB2')||'null') || saveSettings();
+    const base = s.base ? s.base + '/' : '';
+    const files = await listFolder(`${base}letters`);
+    letters = files.filter(f=>isLetter(f.name)).map(f=>f.url);
+    if(letters.length) showLetter(0);
+  } catch(e) { /* ignore */ }
+})();
+
+// ===== Music bar (compact) =====
+const mShuffle = document.getElementById('mShuffle');
+const mPrev = document.getElementById('mPrev');
+const mPlay = document.getElementById('mPlay');
+const mNext = document.getElementById('mNext');
+const mRepeat = document.getElementById('mRepeat');
+const mCur = document.getElementById('mCur');
+const mDur = document.getElementById('mDur');
+const mSeek = document.getElementById('mSeek');
+const mVol = document.getElementById('mVol');
+const audio = new Audio();
+let songs=[]; let sidx=0; let playing=false; let shuffle=false; let repeat=false;
+function isSong(name){ return SONG_EXTS.includes(name.split('.').pop().toLowerCase()); }
+function mmss(sec){ if(!sec||!isFinite(sec)) return '0:00'; const m=Math.floor(sec/60); const s=Math.floor(sec%60); return m+':' + String(s).padStart(2,'0'); }
+async function loadSongs(){
+  try {
+    const s = JSON.parse(localStorage.getItem('ghSettingsWB2')||'null') || saveSettings();
+    const base = s.base ? s.base + '/' : '';
+    const files = await listFolder(`${base}songs`);
+    songs = files.filter(f=>isSong(f.name));
+    if(songs.length) playAt(0); else mPlay.textContent='▶';
+  } catch(e) { /* ignore */ }
+}
+function playAt(i){ sidx=i; if(!songs.length) return; audio.src=songs[sidx].url; audio.play(); playing=true; mPlay.textContent='⏸'; }
+mPlay.addEventListener('click', ()=>{ if(!songs.length) return; if(playing){ audio.pause(); mPlay.textContent='▶'; } else { audio.play(); mPlay.textContent='⏸'; } playing=!playing; });
+mPrev.addEventListener('click', ()=> playAt((sidx-1+songs.length)%songs.length));
+mNext.addEventListener('click', ()=> playAt(shuffle ? Math.floor(Math.random()*songs.length) : (sidx+1)%songs.length));
+mShuffle.addEventListener('click', ()=>{ shuffle=!shuffle; mShuffle.style.background = shuffle ? '#2b3f61' : '#1a2a44'; });
+mRepeat.addEventListener('click', ()=>{ repeat=!repeat; mRepeat.style.background = repeat ? '#2b3f61' : '#1a2a44'; audio.loop = repeat; });
+mVol.addEventListener('input', ()=> audio.volume = parseFloat(mVol.value));
+audio.addEventListener('timeupdate', ()=>{ mSeek.value = (audio.currentTime/(audio.duration||1))*100; mCur.textContent = mmss(audio.currentTime); mDur.textContent = mmss(audio.duration||0); });
+mSeek.addEventListener('input', ()=> audio.currentTime = (parseFloat(mSeek.value)/100) * (audio.duration||0));
+audio.addEventListener('ended', ()=> mNext.click());
+loadSongs();
+</script>
+</body>
+</html>
